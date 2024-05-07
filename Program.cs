@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TodoApi.src.Config;
 using TodoApi.src.Entities;
+using TodoApi.src.Handler;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<DbMemory>(opt => opt.UseInMemoryDatabase("TodoList"));
@@ -9,79 +10,157 @@ var app = builder.Build();
 
 app.MapGet("/", () => "Hello World!");
 
-app.MapGet("/todo/get", async (DbMemory db) =>
+app.MapGet("/todo/get/handler/{id:int}", (int id, DbMemory db) =>
 {
-    return await db.Todos.ToListAsync();
-});
-
-app.MapGet("/todo/get/{id}", async (string id, DbMemory db) =>
-{
-    Todo? todo = await db.Todos.FindAsync(id);
-    if (todo == null)
+    try
     {
-        return Results.BadRequest($"El {id} no se encuentra");
+        GetATodoHandler handle = new GetATodoHandler(db, id);
+        var todos = handle.Handle();
+        return Results.Ok(todos);
     }
-    return Results.Ok(todo);
+    catch (Exception e)
+    {
+        return Results.Problem(e.Message);
+    }
 });
 
-app.MapGet("/todo/get/true", async (DbMemory db) =>
+app.MapGet("/todo/get/handler/{type}", (string type, DbMemory db) =>
 {
-    int nose = db.Todos.Count();
-    if (nose > 0)
+    try
     {
-        foreach (var todo in db.Todos)
+        GetAllTypeTodoHandler handle = new GetAllTypeTodoHandler(db, type);
+        var todos = handle.Handle();
+        return Results.Ok(todos);
+    }
+    catch (Exception e)
+    {
+        return Results.Problem(e.Message);
+    }
+});
+
+app.MapGet("/todo/get/handler", (DbMemory db) =>
+{
+    try
+    {
+        GetAllTodoHandler handle = new GetAllTodoHandler(db);
+        var todos = handle.Handle();
+        return Results.Ok(todos);
+    }
+    catch (Exception e)
+    {
+        return Results.Problem(e.Message);
+    }
+});
+
+app.MapPost("/todo/post/multiple/handler", async (HttpContext context, DbMemory db) =>
+{
+    try
+    {
+        List<Todo>? todos = await context.Request.ReadFromJsonAsync<List<Todo>>();
+        if (todos == null || todos.Count == 0)
         {
-            if (todo.isCompleted == true)
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+            await context.Response.WriteAsync("JSON vacio");
+            return;
+        }
+        foreach (var todo in todos)
+        {
+            if (todo.Name == "")
             {
-                return Results.Ok(todo);
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                return;
+            }
+            foreach (var habilities in todo.SetHabilities)
+            {
+                if (habilities < 0 || habilities > 40)
+                {
+                    context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                    await context.Response.WriteAsync("los valores de ataque deben ser entre 0 y 40");
+                    return;
+                }
+            }
+            if (todo.SetHabilities.Count > 4)
+            {
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                await context.Response.WriteAsync("los ataques deben ser maximo 4");
+                return;
+            }
+            if (todo.SetHabilities.Count == 0)
+            {
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                await context.Response.WriteAsync("debe tener al menos 1 ataque");
+                return;
+            }
+            if (todo.Defense > 30 || todo.Defense < 1)
+            {
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                await context.Response.WriteAsync("La defensa debe ser entre 1 y 30");
+                return;
             }
         }
+        CreateMultipleTodoHandler handler = new CreateMultipleTodoHandler(db);
+        await handler.HandleAsync(todos);
     }
-
-    return Results.BadRequest($"No hay datos");
+    catch (Exception e)
+    {
+        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+        await context.Response.WriteAsync(e.Message);
+        return;
+    }
 });
 
-app.MapPost("/todo/post", async (Todo todo, DbMemory db) =>
+app.MapPost("/todo/post/handler", async (HttpContext context, DbMemory db) =>
 {
-    if (todo.nombre == "")
+    try
     {
-        return Results.BadRequest("El campo nombre es vacio");
+        Todo? todo = await context.Request.ReadFromJsonAsync<Todo>();
+        if (todo == null)
+        {
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+            await context.Response.WriteAsync("JSON vacio");
+            return;
+        }
+        if (todo.Name == "")
+        {
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+            return;
+        }
+        foreach (var habilities in todo.SetHabilities)
+        {
+            if (habilities < 0 || habilities > 40)
+            {
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                await context.Response.WriteAsync("los valores de ataque deben ser entre 0 y 40");
+                return;
+            }
+        }
+        if (todo.SetHabilities.Count > 4)
+        {
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+            await context.Response.WriteAsync("los ataques deben ser maximo 4");
+            return;
+        }
+        if (todo.SetHabilities.Count == 0)
+        {
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+            await context.Response.WriteAsync("debe tener al menos 1 ataque");
+            return;
+        }
+        if (todo.Defense > 30 || todo.Defense < 1)
+        {
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+            await context.Response.WriteAsync("La defensa debe ser entre 1 y 30");
+            return;
+        }
+        CreateTodoHandler handler = new CreateTodoHandler(db);
+        await handler.HandleAsync(todo);
     }
-
-    if (todo.isCompleted.GetType() != typeof(bool))
+    catch (Exception e)
     {
-        return Results.BadRequest("No es boleano");
+        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+        await context.Response.WriteAsync(e.Message);
+        return;
     }
-    db.Todos.Add(todo);
-    await db.SaveChangesAsync();
-
-    return Results.Created($"/api/v1/Todo/{todo.Id}", todo);
-});
-
-app.MapDelete("/todo/delete/{id}", async (string id, DbMemory db) =>
-{
-    Todo? todo = await db.Todos.FindAsync(id);
-    if (todo == null)
-    {
-        return Results.NotFound($"El todo con {id} no existe");
-    }
-    db.Todos.Remove(todo);
-    await db.SaveChangesAsync();
-    return Results.Ok($"Todo con {id} eliminado correctamente");
-});
-
-app.MapPut("/todo/actualizar/{id}", async (string id, Todo todo_inpu, DbMemory db) =>
-{
-    Todo? todo = await db.Todos.FindAsync(id);
-    if (todo == null)
-    {
-        return Results.NotFound($"El todo con {id} no existe");
-    }
-    todo.nombre = todo_inpu.nombre;
-    todo.isCompleted = todo_inpu.isCompleted;
-    await db.SaveChangesAsync();
-
-    return Results.Ok($"Todo {id} actualizado");
 });
 
 app.Run();

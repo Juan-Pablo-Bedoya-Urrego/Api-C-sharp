@@ -713,11 +713,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Juan Pablo\\Desktop\\TodoApi\\TodoApi.csproj",
+      "projectUniqueName": "C:\\Users\\Juan Pablo\\Desktop\\Programas\\Csharp\\PokemonApi\\TodoApi.csproj",
       "projectName": "TodoApi",
-      "projectPath": "C:\\Users\\Juan Pablo\\Desktop\\TodoApi\\TodoApi.csproj",
+      "projectPath": "C:\\Users\\Juan Pablo\\Desktop\\Programas\\Csharp\\PokemonApi\\TodoApi.csproj",
       "packagesPath": "C:\\Users\\Juan Pablo\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Juan Pablo\\Desktop\\TodoApi\\obj\\",
+      "outputPath": "C:\\Users\\Juan Pablo\\Desktop\\Programas\\Csharp\\PokemonApi\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Juan Pablo\\AppData\\Roaming\\NuGet\\NuGet.Config"
