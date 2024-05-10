@@ -1,0 +1,59 @@
+[
+    {
+        "Id": 1,
+        "Name": "Bulbasaur",
+        "Type": "Grass",
+        "SetAttack": [1, 2, 3],
+        "Defense": 25.5
+    },
+    {
+        "Id": 2,
+        "Name": "Charmander",
+        "Type": "Fire",
+        "SetAttack": [1, 2, 3],
+        "Defense": 25.5
+    },
+    {
+        "Id": 3,
+        "Name": "Squirtle",
+        "Type": "Water",
+        "SetAttack": [7, 8, 9],
+        "Defense": 21.8
+    },
+    {
+        "Id": 4,
+        "Name": "Pikachu",
+        "Type": "Electric",
+        "SetAttack": [10, 11, 12],
+        "Defense": 19.6
+    },
+    {
+        "Id": 5,
+        "Name": "Jigglypuff",
+        "Type": "Fairy",
+        "SetAttack": [13, 14, 15],
+        "Defense": 20.0
+    },
+    {
+        "Id": 6,
+        "Name": "Gyarados",
+        "Type": "Water",
+        "SetAttack": [16, 17, 18],
+        "Defense": 12.9
+    },
+    {
+        "Id": 7,
+        "Name": "Vulpix",
+        "Type": "Fire",
+        "SetAttack": [4, 5, 6],
+        "Defense": 18.2
+    },
+    {
+        "Id": 8,
+        "Name": "Growlithe",
+        "Type": "Fire",
+        "SetAttack": [7, 8, 9],
+        "Defense": 22.8
+    }
+]
+

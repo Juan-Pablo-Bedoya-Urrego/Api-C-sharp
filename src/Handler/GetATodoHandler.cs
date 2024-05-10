@@ -16,7 +16,7 @@ public class GetATodoHandler
     public Todo Handle()
     {
         var todo = this._db.Todos.FirstOrDefault(
-        item => item.Id == this.id
+        item => item.Id == this.id    
         );
         if (todo == null){
             throw new ArgumentException($"El pokemon con el id {this.id} no existe");

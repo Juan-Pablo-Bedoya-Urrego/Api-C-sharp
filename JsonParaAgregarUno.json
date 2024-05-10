@@ -1,0 +1,7 @@
+{
+    "Id": 9,
+    "Name": "Squirtle",
+    "Type": "Water",
+    "SetAttack": [22, 23, 24],
+    "Defense": 23.7
+}
