@@ -1,1 +1,3 @@
 Los Json para hacer las pruebas esta subidos aqui mismo en el repositorio....
+
+se puede hacer desde un post con un solo Json con la informacion requerida hasta un post con una lista de Json que envie varios Json a la vez y los guarde, se puede actualizar datos especificando cual se quiere actualizar enviando el id por la URL, los mismo para eliminar un pokemon o para buscar ese pokemon en especifico
